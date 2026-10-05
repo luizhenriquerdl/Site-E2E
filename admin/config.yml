@@ -1,7 +1,7 @@
 # Painel do dono do site (Decap CMS). Acesse em seusite.com.br/admin
 backend:
   name: github
-  repo: SEU_USUARIO/SEU_REPOSITORIO   # TROQUE: usuário/repositório do GitHub
+  repo: LUIZHENRIQUERDL/https://github.com/luizhenriquerdl/Site-E2E.git   # TROQUE: usuário/repositório do GitHub
   branch: main
 
 local_backend: true        # permite testar o painel no seu computador (npx decap-server)

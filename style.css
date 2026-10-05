@@ -1,4 +1,4 @@
-:root{--bg:#141517;--ink:#1b1c1e;--muted:#6b7075;--line:#e3e5e8;--soft:#f4f5f6;--or:#f0662b;--or-d:#d4521a;--blue:#5aa0e6;--max:1180px}
+:root{--bg:#141517;--ink:#1b1c1e;--muted:#6b7075;--line:#e3e5e8;--soft:#f4f5f6;--or:#0b8efa;--or-d:#d4521a;--blue:#5aa0e6;--max:1180px}
 *{box-sizing:border-box;margin:0}
 html{scroll-behavior:smooth}
 body{font:16px/1.65 "PT Sans",system-ui,sans-serif;color:var(--ink);background:#fff}
@@ -28,7 +28,7 @@ a{color:inherit}
 
 /* Botões */
 .btn{display:inline-block;border:0;cursor:pointer;text-decoration:none;font-weight:500;font-size:14px;color:#fff;padding:11px 24px;border-radius:40px;transition:.2s}
-.pill{background:var(--or);box-shadow:0 8px 24px rgba(240,102,43,.3)}
+.pill{background:var(--or);box-shadow:0 8px 24px rgba(4, 175, 243, 0.3)}
 .pill:hover{background:var(--or-d)}
 .ghost{border:1px solid rgba(255,255,255,.4);background:none}
 .ghost:hover{border-color:#fff;background:rgba(255,255,255,.08)}
