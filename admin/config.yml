@@ -1,0 +1,55 @@
+# Painel do dono do site (Decap CMS). Acesse em seusite.com.br/admin
+backend:
+  name: github
+  repo: SEU_USUARIO/SEU_REPOSITORIO   # TROQUE: usuário/repositório do GitHub
+  branch: main
+
+local_backend: true        # permite testar o painel no seu computador (npx decap-server)
+locale: pt
+media_folder: img/uploads  # onde as fotos enviadas são salvas
+public_folder: img/uploads
+
+collections:
+  - name: conteudo
+    label: Conteúdo do site
+    files:
+      - name: projetos
+        label: Projetos realizados
+        file: data/projetos.json
+        fields:
+          - label: Projetos
+            name: projetos
+            widget: list
+            summary: "{{fields.titulo}}"
+            hint: "Arraste para mudar a ordem. O primeiro aparece primeiro no site."
+            fields:
+              - { label: Título, name: titulo, widget: string }
+              - { label: Cliente, name: cliente, widget: string }
+              - { label: Data, name: data, widget: datetime, date_format: "DD/MM/YYYY", time_format: false, format: "YYYY-MM-DD" }
+              - { label: Área, name: area, widget: select, options: ["Montagens", "Saneamento", "Fabricação", "Elevação"] }
+              - { label: Foto principal, name: img, widget: image }
+              - { label: Descrição (opcional), name: descricao, widget: text, required: false }
+              - { label: Mais fotos do projeto (opcional), name: galeria, widget: list, required: false, field: { label: Foto, name: foto, widget: image } }
+
+      - name: clientes
+        label: Clientes
+        file: data/clientes.json
+        fields:
+          - label: Clientes
+            name: clientes
+            widget: list
+            summary: "{{fields.nome}}"
+            fields:
+              - { label: Nome, name: nome, widget: string }
+              - { label: Logo (opcional), name: logo, widget: image, required: false }
+
+      - name: site
+        label: Contato e imagens de fundo
+        file: data/site.json
+        fields:
+          - { label: "WhatsApp (só números, com 55 e DDD)", name: whatsapp, widget: string, hint: "Exemplo: 5511987654321" }
+          - { label: Telefone, name: tel, widget: string }
+          - { label: E-mail, name: email, widget: string }
+          - { label: Endereço do escritório / fábrica, name: endereco, widget: string }
+          - { label: Link do Instagram, name: instagram, widget: string }
+          - { label: Imagens de fundo do topo, name: fundos, widget: list, field: { label: Imagem, name: imagem, widget: image } }

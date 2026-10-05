@@ -1,0 +1,10 @@
+{
+  "clientes": [
+    { "nome": "Galvão", "logo": "img/clientes/galvao.png" },
+    { "nome": "Serveng", "logo": "img/clientes/serveng.png" },
+    { "nome": "Tiisa Comsa", "logo": "img/clientes/tiisa-comsa.png" },
+    { "nome": "Acciona", "logo": "img/clientes/acciona.png" },
+    { "nome": "Sabesp", "logo": "img/clientes/sabesp.png" },
+    { "nome": "Metrô SP", "logo": "img/clientes/metro.png" }
+  ]
+}

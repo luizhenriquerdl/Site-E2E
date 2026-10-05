@@ -1,0 +1,39 @@
+{
+  "projetos": [
+    {
+      "titulo": "Estroncamento poço sala técnica",
+      "cliente": "Consórcio Galvão Serveng",
+      "data": "2014-08-01",
+      "area": "Montagens",
+      "img": "img/projeto-1.jpg"
+    },
+    {
+      "titulo": "Estrutura metálica definitiva mezanino",
+      "cliente": "Estação Oscar Freire, Tiisa Comsa",
+      "data": "2020-07-01",
+      "area": "Fabricação",
+      "img": "img/projeto-2.jpg"
+    },
+    {
+      "titulo": "Desvio Sabesp em adutora 700mm",
+      "cliente": "Acciona",
+      "data": "2022-02-01",
+      "area": "Saneamento",
+      "img": "img/projeto-3.jpg"
+    },
+    {
+      "titulo": "Caçamba com balancim para escavação",
+      "cliente": "Consórcio Metrô L2 Vila Formosa",
+      "data": "2024-03-01",
+      "area": "Fabricação",
+      "img": "img/projeto-4.jpg"
+    },
+    {
+      "titulo": "sdadwsa",
+      "cliente": "dasdadsa",
+      "data": "2026-10-04",
+      "area": "Montagens",
+      "img": "img/uploads/50f04a8f1cf459a34ca8de0097d34ccd.jpg"
+    }
+  ]
+}

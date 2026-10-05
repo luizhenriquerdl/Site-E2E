@@ -1,12 +1,6 @@
-/* ====== DADOS: edite aqui ====== */
-const WHATSAPP = "5511900000000"; // TROQUE: país + DDD + número, só dígitos (ex.: 5511987654321)
+/* O conteúdo editável (projetos, clientes, contato, fundos) fica na pasta data/
+   e é alterado pelo painel em /admin. Aqui ficam só textos fixos. */
 const WA_MSG = "Olá! Vim pelo site da E2E Engenharia e gostaria de solicitar um orçamento.";
-const CONTATO = {
-  tel: "(11) 0000-0000",
-  email: "contato@seudominio.com.br",
-  endereco: "Rua Exemplo, 123, Bairro, São Paulo, SP",
-  instagram: "https://instagram.com/seu_perfil"
-};
 const SERVICOS = [
   { nome: "Montagens", desc: "Montagem de estruturas, tubulações e equipamentos industriais." },
   { nome: "Saneamento", desc: "Obras e intervenções em redes, adutoras e estações." },
@@ -14,53 +8,54 @@ const SERVICOS = [
   { nome: "Elevação", desc: "Soluções para movimentação e içamento de cargas." }
 ];
 const FAIXA_SERVICOS = [...SERVICOS.map(s => s.nome), "Estroncamento", "Estruturas metálicas", "Desvio de adutoras", "Caçambas e equipamentos"];
-/* Coloque as fotos em img/ e ajuste "img". Logos em img/clientes/ (opcional). */
-const PROJETOS = [
-  { id: 1, titulo: "Estroncamento poço sala técnica", cliente: "Consórcio Galvão Serveng", data: "Agosto, 2014", ano: 2014, area: "Montagens",  img: "img/projeto-1.jpg" },
-  { id: 2, titulo: "Estrutura metálica definitiva mezanino", cliente: "Estação Oscar Freire, Tiisa Comsa", data: "Julho, 2020", ano: 2020, area: "Fabricação", img: "img/projeto-2.jpg" },
-  { id: 3, titulo: "Desvio Sabesp em adutora 700mm", cliente: "Acciona", data: "Fevereiro, 2022", ano: 2022, area: "Saneamento", img: "img/projeto-3.jpg" },
-  { id: 4, titulo: "Caçamba com balancim para escavação", cliente: "Consórcio Metrô L2 Vila Formosa", data: "Março, 2024", ano: 2024, area: "Fabricação", img: "img/projeto-4.jpg" }
-];
-const CLIENTES = [
-  { nome: "Galvão", logo: "img/clientes/galvao.png" },
-  { nome: "Serveng", logo: "img/clientes/serveng.png" },
-  { nome: "Tiisa Comsa", logo: "img/clientes/tiisa-comsa.png" },
-  { nome: "Acciona", logo: "img/clientes/acciona.png" },
-  { nome: "Sabesp", logo: "img/clientes/sabesp.png" },
-  { nome: "Metrô SP", logo: "img/clientes/metro.png" }
-];
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const rep = (arr, n = 4) => Array.from({ length: n }, () => arr).flat(); // repete a lista para o loop não ter vazio
+const load = nome => fetch(`data/${nome}.json`, { cache: "no-store" }).then(r => { if (!r.ok) throw new Error(nome); return r.json(); });
+const fmtData = d => {
+  const t = new Date(d + "T12:00:00"); if (isNaN(t)) return "";
+  const m = t.toLocaleDateString("pt-BR", { month: "long" });
+  return m[0].toUpperCase() + m.slice(1) + ", " + t.getFullYear();
+};
 
-/* ====== Imagens com substituto ====== */
+let PROJETOS = [], CONTATO = {};
 const fig = p => `<span class="fig">${p.titulo}<img src="${p.img}" alt="${p.titulo}" loading="lazy"></span>`;
+const card = p => `<a class="card" href="#projeto-${p.id}">${fig(p)}
+  <span class="t">${p.titulo}</span><span class="m">${p.cliente}</span><span class="m">${p.data}</span></a>`;
+
+/* Imagens: se o arquivo não existe, mostra o substituto */
 document.addEventListener("error", e => { if (e.target.matches?.("img")) e.target.remove(); }, true);
 document.addEventListener("load", e => { if (e.target.matches?.(".cl img")) e.target.parentElement.classList.add("has"); }, true);
 
-const card = p => `<button class="card" data-id="${p.id}">${fig(p)}
-  <span class="t">${p.titulo}</span><span class="m">${p.cliente}</span><span class="m">${p.data}</span></button>`;
-
-/* ====== Dados de contato e WhatsApp ====== */
-$$("[data-wa]").forEach(a => a.href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(WA_MSG)}`);
-$$("[data-f]").forEach(el => {
-  const k = el.dataset.f, v = CONTATO[k];
-  if (k === "instagram") { el.href = v; return; }
-  el.textContent = v;
-  if (k === "tel") el.href = "tel:" + v.replace(/\D/g, "");
-  if (k === "email") el.href = "mailto:" + v;
-});
-
 /* ====== Abas (navegação por #hash) ====== */
 let aba = "inicio";
-function cabecalho() { $("#top").classList.toggle("solid", scrollY > 40 || aba !== "inicio"); }
+const cabecalho = () => $("#top").classList.toggle("solid", scrollY > 40 || aba !== "inicio");
+function renderDetalhe(id) {
+  const el = $("#detalhe"), i = PROJETOS.findIndex(p => p.id === id);
+  if (i < 0) { el.innerHTML = '<a class="back" href="#projetos">← Voltar aos projetos</a><h1>Projeto não encontrado</h1>'; return; }
+  const p = PROJETOS[i], ant = PROJETOS[i - 1], prox = PROJETOS[i + 1];
+  const outros = PROJETOS.filter(x => x.id !== id);
+  const galeria = (p.galeria || []).map(g => `<img src="${g}" alt="${p.titulo}" loading="lazy">`).join("");
+  el.innerHTML = `
+    <a class="back" href="#projetos">← Voltar aos projetos</a>
+    <h1>${p.titulo}</h1>
+    <p class="meta">${[p.cliente, p.data, p.area].filter(Boolean).map(t => `<span>${t}</span>`).join("")}</p>
+    ${fig(p)}
+    ${p.descricao ? `<p class="desc">${p.descricao}</p>` : ""}
+    ${galeria ? `<div class="galeria">${galeria}</div>` : ""}
+    <div class="pn">${ant ? `<a href="#projeto-${ant.id}">← ${ant.titulo}</a>` : "<span></span>"}${prox ? `<a href="#projeto-${prox.id}">${prox.titulo} →</a>` : "<span></span>"}</div>
+    <a class="btn pill big" href="#contato">Solicitar orçamento</a>
+    ${outros.length ? `<h2 class="outros">Outros projetos</h2><div class="grid4 wide">${outros.map(card).join("")}</div>` : ""}`;
+}
 function mostrarAba() {
-  const alvo = location.hash.slice(1);
-  aba = $$("[data-tab]").some(s => s.id === alvo) ? alvo : "inicio";
+  const h = location.hash.slice(1), m = h.match(/^projeto-(\d+)$/);
+  if (m) { aba = "projeto"; renderDetalhe(+m[1]); }
+  else aba = $$("[data-tab]").some(s => s.id === h && s.id !== "projeto") ? h : "inicio";
+  const ativo = aba === "projeto" ? "projetos" : aba;
   $$("[data-tab]").forEach(s => (s.hidden = s.id !== aba));
   $$(".nav a").forEach(a => {
-    const on = a.getAttribute("href") === "#" + aba;
+    const on = a.getAttribute("href") === "#" + ativo;
     a.classList.toggle("on", on);
     on ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current");
   });
@@ -70,51 +65,6 @@ function mostrarAba() {
 }
 addEventListener("hashchange", mostrarAba);
 addEventListener("scroll", cabecalho, { passive: true });
-
-/* ====== Fundo do topo alternando ====== */
-const slides = $$(".slide");
-let atual = 0;
-if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
-  setInterval(() => {
-    slides[atual].classList.remove("on");
-    atual = (atual + 1) % slides.length;
-    slides[atual].classList.add("on");
-  }, 6000);
-}
-
-/* ====== Renderização ====== */
-$("#svc").innerHTML = rep(FAIXA_SERVICOS).map(s => `<span>${s}</span>`).join("");
-$("#track").innerHTML = rep(PROJETOS, Math.max(4, Math.ceil(12 / PROJETOS.length) * 2)).map(card).join("");
-$("#clientes").innerHTML = rep(CLIENTES, 4).map(c => `<span class="cl"><img src="${c.logo}" alt="${c.nome}"><b>${c.nome}</b></span>`).join("");
-
-// leque de projetos no menu
-$("#menu").innerHTML = PROJETOS.map(p => `<button data-id="${p.id}">${p.titulo}<small>${p.cliente}, ${p.ano}</small></button>`).join("")
-  + `<a href="#projetos">Ver todos os projetos</a>`;
-
-$("#svc-grid").innerHTML = SERVICOS.map(s => `<article><h3>${s.nome}</h3><p>${s.desc}</p></article>`).join("");
-$("#timeline").innerHTML = [...PROJETOS].sort((a, b) => a.ano - b.ano).map(p =>
-  `<li><div class="y">${p.ano}</div><div><button data-id="${p.id}">${p.titulo}</button>, ${p.cliente}</div></li>`).join("");
-
-const areas = ["Todos", ...new Set(PROJETOS.map(p => p.area))];
-$("#filters").innerHTML = areas.map((a, i) => `<button aria-pressed="${i === 0}" data-area="${a}">${a}</button>`).join("");
-const listar = (area = "Todos") => { $("#all").innerHTML = PROJETOS.filter(p => area === "Todos" || p.area === area).map(card).join(""); };
-$("#filters").addEventListener("click", e => {
-  const b = e.target.closest("button"); if (!b) return;
-  $$("#filters button").forEach(x => x.setAttribute("aria-pressed", x === b));
-  listar(b.dataset.area);
-});
-listar();
-
-/* ====== Janela de ampliação ====== */
-const dlg = $("#dlg");
-document.addEventListener("click", e => {
-  const b = e.target.closest("[data-id]"); if (!b) return;
-  const p = PROJETOS.find(x => x.id == b.dataset.id);
-  $("#dlg-body").innerHTML = `${fig(p)}<div class="dlg-txt"><h3>${p.titulo}</h3><p>${p.cliente}</p><p>${p.data}, ${p.area}</p></div>`;
-  dlg.showModal();
-});
-$("#close").onclick = () => dlg.close();
-dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
 
 /* ====== Formulário ====== */
 $("#form").addEventListener("submit", e => {
@@ -127,5 +77,69 @@ $("#form").addEventListener("submit", e => {
   st.textContent = "Abrimos seu aplicativo de e-mail com a mensagem pronta.";
 });
 
+/* ====== Carrega os dados e monta a página ====== */
+async function main() {
+  let dProj = { projetos: [] }, dCli = { clientes: [] }, site = {};
+  try {
+    [dProj, dCli, site] = await Promise.all(["projetos", "clientes", "site"].map(load));
+  } catch {
+    document.body.insertAdjacentHTML("afterbegin",
+      '<p class="aviso">Não foi possível carregar os dados do site. Abra por um servidor (ex.: extensão Live Server), não com duplo clique no arquivo.</p>');
+  }
+  CONTATO = site;
+  PROJETOS = (dProj.projetos || []).map((p, i) => ({
+    ...p, id: i + 1, ano: new Date(p.data + "T12:00:00").getFullYear(), data: fmtData(p.data), area: p.area || ""
+  }));
+  const CLIENTES = dCli.clientes || [];
+
+  // WhatsApp e contatos
+  const wa = String(site.whatsapp || "").replace(/\D/g, "");
+  $$("[data-wa]").forEach(a => a.href = `https://wa.me/${wa}?text=${encodeURIComponent(WA_MSG)}`);
+  $$("[data-f]").forEach(el => {
+    const k = el.dataset.f, v = site[k] || "";
+    if (k === "instagram") { el.href = v; return; }
+    el.textContent = v;
+    if (k === "tel") el.href = "tel:" + v.replace(/\D/g, "");
+    if (k === "email") el.href = "mailto:" + v;
+  });
+
+  // Fundo do topo alternando
+  const fundos = site.fundos?.length ? site.fundos : [""];
+  $("#slides").innerHTML = fundos.map((f, i) => `<div class="slide${i ? "" : " on"}" style="--bg:url('${f}')"></div>`).join("");
+  const slides = $$(".slide");
+  let atual = 0;
+  if (slides.length > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    setInterval(() => {
+      slides[atual].classList.remove("on");
+      atual = (atual + 1) % slides.length;
+      slides[atual].classList.add("on");
+    }, 6000);
+  }
+
+  // Faixas e listas
+  $("#svc").innerHTML = rep(FAIXA_SERVICOS).map(s => `<span>${s}</span>`).join("");
+  const n = PROJETOS.length ? Math.max(4, Math.ceil(12 / PROJETOS.length) * 2) : 0;
+  $("#track").innerHTML = rep(PROJETOS, n).map(card).join("");
+  $("#clientes").innerHTML = rep(CLIENTES, CLIENTES.length ? 4 : 0).map(c =>
+    `<span class="cl"><img src="${c.logo || ""}" alt="${c.nome}"><b>${c.nome}</b></span>`).join("");
+  $("#menu").innerHTML = PROJETOS.map(p => `<a href="#projeto-${p.id}">${p.titulo}<small>${p.cliente}, ${p.ano}</small></a>`).join("")
+    + `<a class="all" href="#projetos">Ver todos os projetos</a>`;
+  $("#svc-grid").innerHTML = SERVICOS.map(s => `<article><h3>${s.nome}</h3><p>${s.desc}</p></article>`).join("");
+  $("#timeline").innerHTML = [...PROJETOS].sort((a, b) => a.ano - b.ano).map(p =>
+    `<li><div class="y">${p.ano}</div><div><a href="#projeto-${p.id}">${p.titulo}</a>, ${p.cliente}</div></li>`).join("");
+
+  const areas = ["Todos", ...new Set(PROJETOS.map(p => p.area).filter(Boolean))];
+  $("#filters").innerHTML = areas.map((a, i) => `<button aria-pressed="${i === 0}" data-area="${a}">${a}</button>`).join("");
+  const listar = (area = "Todos") => { $("#all").innerHTML = PROJETOS.filter(p => area === "Todos" || p.area === area).map(card).join(""); };
+  $("#filters").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    $$("#filters button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    listar(b.dataset.area);
+  });
+  listar();
+  mostrarAba(); // refaz a rota agora que os dados chegaram
+}
+
 $("#ano").textContent = new Date().getFullYear();
 mostrarAba();
+main();
